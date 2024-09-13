@@ -9,19 +9,15 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1><i class="fas fa-shopping-cart"></i> Modern Shopping List</h1>
-        </header>
-        <main>
-            <form id="add-item-form">
-                <input type="text" id="new-item" placeholder="Add a new item" required>
-                <input type="text" id="new-item-emoji" placeholder="Emoji" maxlength="2">
-                <button type="submit"><i class="fas fa-plus"></i> Add</button>
-            </form>
-            <div id="predefined-categories"></div>
-            <ul id="shopping-list"></ul>
-            <button id="save-cart-btn"><i class="fas fa-save"></i> Save Cart</button>
-        </main>
+        <h1><i class="fas fa-shopping-cart"></i> Shopping List</h1>
+        <form id="add-item-form">
+            <input type="text" id="new-item" placeholder="Add a new item" required>
+            <input type="text" id="new-item-emoji" placeholder="Emoji" maxlength="2">
+            <button type="submit"><i class="fas fa-plus"></i> Add</button>
+        </form>
+        <div id="predefined-categories"></div>
+        <ul id="shopping-list"></ul>
+        <button id="save-cart-btn"><i class="fas fa-save"></i> Save Cart</button>
     </div>
     <div id="notification" class="notification"></div>
     <script type="module" src="index.js"></script>
