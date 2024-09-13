@@ -1,8 +1,10 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
 import { idlFactory } from "./declarations/backend/backend.did.js";
 
+const BACKEND_CANISTER_ID = import.meta.env.VITE_BACKEND_CANISTER_ID || "default_canister_id";
+
 const agent = new HttpAgent();
-const backend = Actor.createActor(idlFactory, { agent, canisterId: process.env.BACKEND_CANISTER_ID });
+const backend = Actor.createActor(idlFactory, { agent, canisterId: BACKEND_CANISTER_ID });
 
 document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('add-item-form');
