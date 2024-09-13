@@ -12,10 +12,10 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'addItem' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
     'deleteItem' : IDL.Func([IDL.Nat], [IDL.Bool], []),
-    'getItems' : IDL.Func([], [IDL.Vec(ShoppingItem)], ['query']),
-    'getPredefinedCategories' : IDL.Func([], [IDL.Vec(Category)], ['query']),
+    'getItems' : IDL.Func([], [IDL.Vec(ShoppingItem)], []),
+    'getPredefinedCategories' : IDL.Func([], [IDL.Vec(Category)], []),
     'saveCart' : IDL.Func([IDL.Vec(ShoppingItem)], [IDL.Bool], []),
-    'toggleItemCompleted' : IDL.Func([IDL.Nat], [ShoppingItem], ['query']),
+    'toggleItemCompleted' : IDL.Func([IDL.Nat], [ShoppingItem], []),
   });
 };
 export const init = ({ IDL }) => { return []; };

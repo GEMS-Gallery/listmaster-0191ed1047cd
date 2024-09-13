@@ -102,26 +102,30 @@ actor {
     id
   };
 
-  public query func getItems() : async [ShoppingItem] {
+  public func getItems() : async [ShoppingItem] {
     shoppingItems
   };
 
-  public query func getPredefinedCategories() : async [Category] {
+  public func getPredefinedCategories() : async [Category] {
     predefinedCategories
   };
 
-  public query func toggleItemCompleted(id : Nat) : async ShoppingItem {
+  public func toggleItemCompleted(id : Nat) : async ShoppingItem {
     let index = Array.indexOf<ShoppingItem>({ id = id; description = ""; completed = false; emoji = "" }, shoppingItems, func(a, b) { a.id == b.id });
     switch (index) {
       case null { { id = id; description = ""; completed = false; emoji = "" } };
       case (?i) {
         let item = shoppingItems[i];
-        {
+        let updatedItem = {
           id = item.id;
           description = item.description;
           completed = not item.completed;
           emoji = item.emoji;
-        }
+        };
+        shoppingItems := Array.tabulate(shoppingItems.size(), func (j : Nat) : ShoppingItem {
+          if (j == i) { updatedItem } else { shoppingItems[j] }
+        });
+        updatedItem
       };
     }
   };
