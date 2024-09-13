@@ -102,11 +102,11 @@ actor {
     id
   };
 
-  public func getItems() : async [ShoppingItem] {
+  public query func getItems() : async [ShoppingItem] {
     shoppingItems
   };
 
-  public func getPredefinedCategories() : async [Category] {
+  public query func getPredefinedCategories() : async [Category] {
     predefinedCategories
   };
 

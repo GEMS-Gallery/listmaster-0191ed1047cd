@@ -1,4 +1,8 @@
-import { backend } from 'declarations/backend';
+import { Actor, HttpAgent } from "@dfinity/agent";
+import { idlFactory } from "./declarations/backend/backend.did.js";
+
+const agent = new HttpAgent();
+const backend = Actor.createActor(idlFactory, { agent, canisterId: process.env.BACKEND_CANISTER_ID });
 
 document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('add-item-form');
@@ -78,8 +82,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Load and display items
     async function loadItems() {
-        shoppingItems = await backend.getItems();
-        renderItems();
+        try {
+            shoppingItems = await backend.getItems();
+            renderItems();
+        } catch (error) {
+            console.error('Failed to load items:', error);
+            showNotification('Failed to load items. Please refresh the page.');
+        }
     }
 
     // Render shopping items
@@ -101,40 +110,46 @@ document.addEventListener('DOMContentLoaded', async () => {
                 itemElement.innerHTML = `
                     <span class="item-emoji">${item.emoji}</span>
                     <span class="item-description">${item.description}</span>
-                    <button class="delete-btn"><i class="fas fa-trash"></i></button>
                 `;
             }
             itemElement.dataset.id = item.id;
             itemElement.addEventListener('click', toggleCompleted);
-            itemElement.querySelector('.delete-btn').addEventListener('click', deleteItem);
+            if (isListView) {
+                itemElement.querySelector('.delete-btn').addEventListener('click', deleteItem);
+            }
             shoppingList.appendChild(itemElement);
         });
     }
 
     // Load and display predefined categories
     async function loadPredefinedCategories() {
-        const categories = await backend.getPredefinedCategories();
-        predefinedCategories.innerHTML = '';
-        categories.forEach(category => {
-            const categoryDiv = document.createElement('div');
-            categoryDiv.className = 'category';
-            categoryDiv.innerHTML = `
-                <h2>${category.name}</h2>
-                <div class="category-items">
-                    ${category.items.map(item => `
-                        <span class="category-item" data-description="${item.description}" data-emoji="${item.emoji}">
-                            ${item.emoji} ${item.description}
-                        </span>
-                    `).join('')}
-                </div>
-            `;
-            predefinedCategories.appendChild(categoryDiv);
-        });
+        try {
+            const categories = await backend.getPredefinedCategories();
+            predefinedCategories.innerHTML = '';
+            categories.forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.innerHTML = `
+                    <h2>${category.name}</h2>
+                    <div class="category-items">
+                        ${category.items.map(item => `
+                            <span class="category-item" data-description="${item.description}" data-emoji="${item.emoji}">
+                                ${item.emoji} ${item.description}
+                            </span>
+                        `).join('')}
+                    </div>
+                `;
+                predefinedCategories.appendChild(categoryDiv);
+            });
 
-        // Add event listeners to predefined items
-        document.querySelectorAll('.category-item').forEach(item => {
-            item.addEventListener('click', addPredefinedItem);
-        });
+            // Add event listeners to predefined items
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.addEventListener('click', addPredefinedItem);
+            });
+        } catch (error) {
+            console.error('Failed to load predefined categories:', error);
+            showNotification('Failed to load predefined categories. Please refresh the page.');
+        }
     }
 
     // Add predefined item to the shopping list
