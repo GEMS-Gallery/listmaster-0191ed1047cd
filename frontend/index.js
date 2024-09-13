@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const list = document.getElementById('shopping-list');
     const predefinedCategories = document.getElementById('predefined-categories');
     const saveCartBtn = document.getElementById('save-cart-btn');
+    const notification = document.getElementById('notification');
 
     let shoppingItems = [];
 
@@ -14,18 +15,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadItems();
     await loadPredefinedCategories();
 
-    // Add new item
-    form.addEventListener('submit', async (e) => {
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    };
+
+    // Show notification
+    function showNotification(message) {
+        notification.textContent = message;
+        notification.classList.add('show');
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
+    // Add new item with debounce
+    const debouncedAddItem = debounce(async (description, emoji) => {
+        const id = await backend.addItem(description, emoji);
+        const newItem = { id, description, completed: false, emoji };
+        shoppingItems.push(newItem);
+        renderItems();
+        showNotification('Item added successfully!');
+    }, 300);
+
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
         const description = input.value.trim();
         const emoji = emojiInput.value.trim();
         if (description) {
-            const id = await backend.addItem(description, emoji);
-            const newItem = { id, description, completed: false, emoji };
-            shoppingItems.push(newItem);
+            // Optimistic update
+            const tempId = Date.now();
+            const tempItem = { id: tempId, description, completed: false, emoji };
+            shoppingItems.push(tempItem);
             renderItems();
             input.value = '';
             emojiInput.value = '';
+            debouncedAddItem(description, emoji);
         }
     });
 
@@ -83,20 +116,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function addPredefinedItem(e) {
         const description = this.dataset.description;
         const emoji = this.dataset.emoji;
-        const id = await backend.addItem(description, emoji);
-        const newItem = { id, description, completed: false, emoji };
-        shoppingItems.push(newItem);
+        // Optimistic update
+        const tempId = Date.now();
+        const tempItem = { id: tempId, description, completed: false, emoji };
+        shoppingItems.push(tempItem);
         renderItems();
+        debouncedAddItem(description, emoji);
     }
 
     // Toggle completed status
     async function toggleCompleted(e) {
         if (e.target.tagName === 'BUTTON') return;
         const id = parseInt(this.dataset.id);
-        const updatedItem = await backend.toggleItemCompleted(id);
+        // Optimistic update
         const index = shoppingItems.findIndex(item => item.id === id);
         if (index !== -1) {
-            shoppingItems[index] = updatedItem;
+            shoppingItems[index].completed = !shoppingItems[index].completed;
+            renderItems();
+        }
+        const updatedItem = await backend.toggleItemCompleted(id);
+        // Update with server response
+        const serverIndex = shoppingItems.findIndex(item => item.id === updatedItem.id);
+        if (serverIndex !== -1) {
+            shoppingItems[serverIndex] = updatedItem;
             renderItems();
         }
     }
@@ -105,10 +147,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function deleteItem(e) {
         e.stopPropagation();
         const id = parseInt(this.parentElement.dataset.id);
+        // Optimistic update
+        shoppingItems = shoppingItems.filter(item => item.id !== id);
+        renderItems();
         const success = await backend.deleteItem(id);
-        if (success) {
-            shoppingItems = shoppingItems.filter(item => item.id !== id);
-            renderItems();
+        if (!success) {
+            // Revert if delete failed
+            await loadItems();
         }
     }
 
@@ -116,9 +161,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveCartBtn.addEventListener('click', async () => {
         const success = await backend.saveCart(shoppingItems);
         if (success) {
-            alert('Cart saved successfully!');
+            showNotification('Cart saved successfully!');
         } else {
-            alert('Failed to save cart. Please try again.');
+            showNotification('Failed to save cart. Please try again.');
         }
     });
 });
