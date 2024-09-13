@@ -28,13 +28,35 @@ actor {
       items = [
         { id = 0; description = "Carrots"; completed = false; emoji = "🥕" },
         { id = 1; description = "Tomatoes"; completed = false; emoji = "🍅" },
+        { id = 2; description = "Lettuce"; completed = false; emoji = "🥬" },
+        { id = 3; description = "Apples"; completed = false; emoji = "🍎" },
+        { id = 4; description = "Bananas"; completed = false; emoji = "🍌" },
       ];
     },
     {
       name = "Bakery";
       items = [
-        { id = 2; description = "Bread"; completed = false; emoji = "🍞" },
-        { id = 3; description = "Croissant"; completed = false; emoji = "🥐" },
+        { id = 5; description = "Bread"; completed = false; emoji = "🍞" },
+        { id = 6; description = "Croissant"; completed = false; emoji = "🥐" },
+        { id = 7; description = "Bagel"; completed = false; emoji = "🥯" },
+        { id = 8; description = "Cake"; completed = false; emoji = "🍰" },
+      ];
+    },
+    {
+      name = "Dairy";
+      items = [
+        { id = 9; description = "Milk"; completed = false; emoji = "🥛" },
+        { id = 10; description = "Cheese"; completed = false; emoji = "🧀" },
+        { id = 11; description = "Yogurt"; completed = false; emoji = "🥣" },
+        { id = 12; description = "Butter"; completed = false; emoji = "🧈" },
+      ];
+    },
+    {
+      name = "Meat";
+      items = [
+        { id = 13; description = "Chicken"; completed = false; emoji = "🍗" },
+        { id = 14; description = "Beef"; completed = false; emoji = "🥩" },
+        { id = 15; description = "Fish"; completed = false; emoji = "🐟" },
       ];
     },
   ];
