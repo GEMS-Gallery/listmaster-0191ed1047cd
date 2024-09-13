@@ -111,7 +111,12 @@ button:hover {
 }
 
 #shopping-list.grid-view .shopping-item .item-emoji {
-    font-size: 2em;
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+#shopping-list.grid-view .shopping-item .item-description {
+    font-size: 0.9em;
     margin-bottom: 10px;
 }
 
@@ -208,5 +213,9 @@ button:hover {
 
     input[type="text"], button {
         width: 100%;
+    }
+
+    #shopping-list.grid-view {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     }
 }

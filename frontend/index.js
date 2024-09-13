@@ -91,14 +91,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 itemElement.innerHTML = `
                     <div class="item-content">
                         <span class="item-emoji">${item.emoji}</span>
-                        <span>${item.description}</span>
+                        <span class="item-description">${item.description}</span>
                     </div>
                     <button class="delete-btn"><i class="fas fa-trash"></i></button>
                 `;
             } else {
                 itemElement.innerHTML = `
                     <span class="item-emoji">${item.emoji}</span>
-                    <span>${item.description}</span>
+                    <span class="item-description">${item.description}</span>
                     <button class="delete-btn"><i class="fas fa-trash"></i></button>
                 `;
             }
