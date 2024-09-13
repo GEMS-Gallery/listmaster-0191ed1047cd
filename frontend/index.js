@@ -4,10 +4,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('add-item-form');
     const input = document.getElementById('new-item');
     const emojiInput = document.getElementById('new-item-emoji');
-    const list = document.getElementById('shopping-list');
+    const shoppingList = document.getElementById('shopping-list');
     const predefinedCategories = document.getElementById('predefined-categories');
     const saveCartBtn = document.getElementById('save-cart-btn');
     const notification = document.getElementById('notification');
+    const listViewBtn = document.getElementById('list-view-btn');
+    const gridViewBtn = document.getElementById('grid-view-btn');
 
     let shoppingItems = [];
 
@@ -15,18 +17,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadItems();
     await loadPredefinedCategories();
 
-    // Debounce function
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    };
+    // Toggle view
+    listViewBtn.addEventListener('click', () => {
+        shoppingList.className = 'list-view';
+        listViewBtn.classList.add('active');
+        gridViewBtn.classList.remove('active');
+    });
+
+    gridViewBtn.addEventListener('click', () => {
+        shoppingList.className = 'grid-view';
+        gridViewBtn.classList.add('active');
+        listViewBtn.classList.remove('active');
+    });
 
     // Show notification
     function showNotification(message) {
@@ -37,30 +39,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 3000);
     }
 
-    // Add new item with debounce
-    const debouncedAddItem = debounce(async (description, emoji) => {
-        const id = await backend.addItem(description, emoji);
-        const newItem = { id, description, completed: false, emoji };
-        shoppingItems.push(newItem);
-        renderItems();
-        showNotification('Item added successfully!');
-    }, 300);
-
+    // Add new item
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const description = input.value.trim();
         const emoji = emojiInput.value.trim();
         if (description) {
-            // Optimistic update
-            const tempId = Date.now();
-            const tempItem = { id: tempId, description, completed: false, emoji };
-            shoppingItems.push(tempItem);
-            renderItems();
+            addItem(description, emoji);
             input.value = '';
             emojiInput.value = '';
-            debouncedAddItem(description, emoji);
         }
     });
+
+    async function addItem(description, emoji) {
+        const tempId = Date.now();
+        const tempItem = { id: tempId, description, completed: false, emoji };
+        shoppingItems.push(tempItem);
+        renderItems();
+        showNotification('Item added successfully!');
+
+        try {
+            const id = await backend.addItem(description, emoji);
+            const index = shoppingItems.findIndex(item => item.id === tempId);
+            if (index !== -1) {
+                shoppingItems[index].id = id;
+            }
+        } catch (error) {
+            console.error('Failed to add item:', error);
+            shoppingItems = shoppingItems.filter(item => item.id !== tempId);
+            renderItems();
+            showNotification('Failed to add item. Please try again.');
+        }
+    }
 
     // Load and display items
     async function loadItems() {
@@ -70,19 +80,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Render shopping items
     function renderItems() {
-        list.innerHTML = '';
+        shoppingList.innerHTML = '';
         shoppingItems.forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <span class="${item.completed ? 'completed' : ''}">
-                    ${item.emoji} ${item.description}
-                </span>
+            const itemElement = document.createElement('div');
+            itemElement.className = `shopping-item ${item.completed ? 'completed' : ''}`;
+            itemElement.innerHTML = `
+                <span>${item.emoji} ${item.description}</span>
                 <button class="delete-btn"><i class="fas fa-trash"></i></button>
             `;
-            li.dataset.id = item.id;
-            li.addEventListener('click', toggleCompleted);
-            li.querySelector('.delete-btn').addEventListener('click', deleteItem);
-            list.appendChild(li);
+            itemElement.dataset.id = item.id;
+            itemElement.addEventListener('click', toggleCompleted);
+            itemElement.querySelector('.delete-btn').addEventListener('click', deleteItem);
+            shoppingList.appendChild(itemElement);
         });
     }
 
@@ -113,33 +122,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Add predefined item to the shopping list
-    async function addPredefinedItem(e) {
+    function addPredefinedItem(e) {
         const description = this.dataset.description;
         const emoji = this.dataset.emoji;
-        // Optimistic update
-        const tempId = Date.now();
-        const tempItem = { id: tempId, description, completed: false, emoji };
-        shoppingItems.push(tempItem);
-        renderItems();
-        debouncedAddItem(description, emoji);
+        addItem(description, emoji);
     }
 
     // Toggle completed status
     async function toggleCompleted(e) {
         if (e.target.tagName === 'BUTTON') return;
         const id = parseInt(this.dataset.id);
-        // Optimistic update
         const index = shoppingItems.findIndex(item => item.id === id);
         if (index !== -1) {
             shoppingItems[index].completed = !shoppingItems[index].completed;
             renderItems();
-        }
-        const updatedItem = await backend.toggleItemCompleted(id);
-        // Update with server response
-        const serverIndex = shoppingItems.findIndex(item => item.id === updatedItem.id);
-        if (serverIndex !== -1) {
-            shoppingItems[serverIndex] = updatedItem;
-            renderItems();
+            try {
+                await backend.toggleItemCompleted(id);
+            } catch (error) {
+                console.error('Failed to toggle item:', error);
+                shoppingItems[index].completed = !shoppingItems[index].completed;
+                renderItems();
+                showNotification('Failed to update item. Please try again.');
+            }
         }
     }
 
@@ -147,22 +151,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function deleteItem(e) {
         e.stopPropagation();
         const id = parseInt(this.parentElement.dataset.id);
-        // Optimistic update
-        shoppingItems = shoppingItems.filter(item => item.id !== id);
-        renderItems();
-        const success = await backend.deleteItem(id);
-        if (!success) {
-            // Revert if delete failed
-            await loadItems();
+        const index = shoppingItems.findIndex(item => item.id === id);
+        if (index !== -1) {
+            shoppingItems.splice(index, 1);
+            renderItems();
+            showNotification('Item deleted successfully!');
+            try {
+                await backend.deleteItem(id);
+            } catch (error) {
+                console.error('Failed to delete item:', error);
+                shoppingItems.splice(index, 0, { id, description: 'Error: Item not deleted', completed: false, emoji: '❌' });
+                renderItems();
+                showNotification('Failed to delete item. Please try again.');
+            }
         }
     }
 
     // Save cart
     saveCartBtn.addEventListener('click', async () => {
-        const success = await backend.saveCart(shoppingItems);
-        if (success) {
+        try {
+            await backend.saveCart(shoppingItems);
             showNotification('Cart saved successfully!');
-        } else {
+        } catch (error) {
+            console.error('Failed to save cart:', error);
             showNotification('Failed to save cart. Please try again.');
         }
     });

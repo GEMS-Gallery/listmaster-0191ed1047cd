@@ -19,6 +19,25 @@ h1 {
     margin-bottom: 20px;
 }
 
+.view-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.view-toggle button {
+    background-color: #f0f0f0;
+    border: 1px solid #cccccc;
+    padding: 5px 10px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.view-toggle button.active {
+    background-color: #e0e0e0;
+    font-weight: bold;
+}
+
 #add-item-form {
     display: flex;
     gap: 10px;
@@ -53,7 +72,7 @@ button:hover {
     padding: 0;
 }
 
-#shopping-list li {
+#shopping-list.list-view .shopping-item {
     background-color: #f9f9f9;
     margin-bottom: 10px;
     padding: 15px;
@@ -64,11 +83,28 @@ button:hover {
     transition: background-color 0.3s ease;
 }
 
-#shopping-list li:hover {
+#shopping-list.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+#shopping-list.grid-view .shopping-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.shopping-item:hover {
     background-color: #f0f0f0;
 }
 
-#shopping-list li.completed {
+.shopping-item.completed {
     text-decoration: line-through;
     color: #888888;
 }
