@@ -22,12 +22,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         shoppingList.className = 'list-view';
         listViewBtn.classList.add('active');
         gridViewBtn.classList.remove('active');
+        renderItems();
     });
 
     gridViewBtn.addEventListener('click', () => {
         shoppingList.className = 'grid-view';
         gridViewBtn.classList.add('active');
         listViewBtn.classList.remove('active');
+        renderItems();
     });
 
     // Show notification
@@ -81,13 +83,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Render shopping items
     function renderItems() {
         shoppingList.innerHTML = '';
+        const isListView = shoppingList.classList.contains('list-view');
         shoppingItems.forEach(item => {
             const itemElement = document.createElement('div');
             itemElement.className = `shopping-item ${item.completed ? 'completed' : ''}`;
-            itemElement.innerHTML = `
-                <span>${item.emoji} ${item.description}</span>
-                <button class="delete-btn"><i class="fas fa-trash"></i></button>
-            `;
+            if (isListView) {
+                itemElement.innerHTML = `
+                    <div class="item-content">
+                        <span class="item-emoji">${item.emoji}</span>
+                        <span>${item.description}</span>
+                    </div>
+                    <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                `;
+            } else {
+                itemElement.innerHTML = `
+                    <span class="item-emoji">${item.emoji}</span>
+                    <span>${item.description}</span>
+                    <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                `;
+            }
             itemElement.dataset.id = item.id;
             itemElement.addEventListener('click', toggleCompleted);
             itemElement.querySelector('.delete-btn').addEventListener('click', deleteItem);
