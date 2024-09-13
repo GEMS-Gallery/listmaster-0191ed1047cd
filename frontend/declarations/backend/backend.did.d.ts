@@ -14,7 +14,8 @@ export interface _SERVICE {
   'deleteItem' : ActorMethod<[bigint], boolean>,
   'getItems' : ActorMethod<[], Array<ShoppingItem>>,
   'getPredefinedCategories' : ActorMethod<[], Array<Category>>,
-  'toggleCompleted' : ActorMethod<[bigint], boolean>,
+  'saveCart' : ActorMethod<[Array<ShoppingItem>], boolean>,
+  'toggleItemCompleted' : ActorMethod<[bigint], ShoppingItem>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

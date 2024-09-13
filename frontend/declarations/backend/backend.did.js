@@ -14,7 +14,8 @@ export const idlFactory = ({ IDL }) => {
     'deleteItem' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'getItems' : IDL.Func([], [IDL.Vec(ShoppingItem)], ['query']),
     'getPredefinedCategories' : IDL.Func([], [IDL.Vec(Category)], ['query']),
-    'toggleCompleted' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'saveCart' : IDL.Func([IDL.Vec(ShoppingItem)], [IDL.Bool], []),
+    'toggleItemCompleted' : IDL.Func([IDL.Nat], [ShoppingItem], ['query']),
   });
 };
 export const init = ({ IDL }) => { return []; };

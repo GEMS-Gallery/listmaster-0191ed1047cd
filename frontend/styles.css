@@ -119,3 +119,14 @@ button:hover {
 .category-item:hover {
     background-color: #ced4da;
 }
+
+#save-cart-btn {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    background-color: #007bff;
+}
+
+#save-cart-btn:hover {
+    background-color: #0056b3;
+}

@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const emojiInput = document.getElementById('new-item-emoji');
     const list = document.getElementById('shopping-list');
     const predefinedCategories = document.getElementById('predefined-categories');
+    const saveCartBtn = document.getElementById('save-cart-btn');
+
+    let shoppingItems = [];
 
     // Load initial items and predefined categories
     await loadItems();
@@ -17,18 +20,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         const description = input.value.trim();
         const emoji = emojiInput.value.trim();
         if (description) {
-            await backend.addItem(description, emoji);
+            const id = await backend.addItem(description, emoji);
+            const newItem = { id, description, completed: false, emoji };
+            shoppingItems.push(newItem);
+            renderItems();
             input.value = '';
             emojiInput.value = '';
-            await loadItems();
         }
     });
 
     // Load and display items
     async function loadItems() {
-        const items = await backend.getItems();
+        shoppingItems = await backend.getItems();
+        renderItems();
+    }
+
+    // Render shopping items
+    function renderItems() {
         list.innerHTML = '';
-        items.forEach(item => {
+        shoppingItems.forEach(item => {
             const li = document.createElement('li');
             li.innerHTML = `
                 <span class="${item.completed ? 'completed' : ''}">
@@ -73,23 +83,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function addPredefinedItem(e) {
         const description = this.dataset.description;
         const emoji = this.dataset.emoji;
-        await backend.addItem(description, emoji);
-        await loadItems();
+        const id = await backend.addItem(description, emoji);
+        const newItem = { id, description, completed: false, emoji };
+        shoppingItems.push(newItem);
+        renderItems();
     }
 
     // Toggle completed status
     async function toggleCompleted(e) {
         if (e.target.tagName === 'BUTTON') return;
         const id = parseInt(this.dataset.id);
-        await backend.toggleCompleted(id);
-        await loadItems();
+        const updatedItem = await backend.toggleItemCompleted(id);
+        const index = shoppingItems.findIndex(item => item.id === id);
+        if (index !== -1) {
+            shoppingItems[index] = updatedItem;
+            renderItems();
+        }
     }
 
     // Delete item
     async function deleteItem(e) {
         e.stopPropagation();
         const id = parseInt(this.parentElement.dataset.id);
-        await backend.deleteItem(id);
-        await loadItems();
+        const success = await backend.deleteItem(id);
+        if (success) {
+            shoppingItems = shoppingItems.filter(item => item.id !== id);
+            renderItems();
+        }
     }
+
+    // Save cart
+    saveCartBtn.addEventListener('click', async () => {
+        const success = await backend.saveCart(shoppingItems);
+        if (success) {
+            alert('Cart saved successfully!');
+        } else {
+            alert('Failed to save cart. Please try again.');
+        }
+    });
 });

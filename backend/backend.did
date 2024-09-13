@@ -15,5 +15,6 @@ service : {
   deleteItem: (nat) -> (bool);
   getItems: () -> (vec ShoppingItem) query;
   getPredefinedCategories: () -> (vec Category) query;
-  toggleCompleted: (nat) -> (bool);
+  saveCart: (vec ShoppingItem) -> (bool);
+  toggleItemCompleted: (nat) -> (ShoppingItem) query;
 }
