@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         shoppingList.className = 'list-view';
         listViewBtn.classList.add('active');
         gridViewBtn.classList.remove('active');
+        predefinedCategories.style.display = 'block';
         renderItems();
     });
 
@@ -29,6 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         shoppingList.className = 'grid-view';
         gridViewBtn.classList.add('active');
         listViewBtn.classList.remove('active');
+        predefinedCategories.style.display = 'none';
         renderItems();
     });
 
