@@ -28,12 +28,20 @@ h1 {
     margin-bottom: 20px;
 }
 
-#new-item {
-    flex-grow: 1;
+#new-item, #new-item-emoji {
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ddd;
+}
+
+#new-item {
+    flex-grow: 1;
     border-radius: 4px 0 0 4px;
+}
+
+#new-item-emoji {
+    width: 50px;
+    text-align: center;
 }
 
 button {
@@ -81,4 +89,33 @@ button:hover {
 
 .delete-btn:hover {
     background-color: #c9302c;
+}
+
+#predefined-categories {
+    margin-bottom: 20px;
+}
+
+.category {
+    margin-bottom: 15px;
+}
+
+.category h2 {
+    margin-bottom: 10px;
+}
+
+.category-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.category-item {
+    background-color: #e9ecef;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.category-item:hover {
+    background-color: #ced4da;
 }
